@@ -15,3 +15,4 @@ before_install:
 script:
   - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("Sobol"))`); Pkg.pin("Sobol"); Pkg.resolve()'
   - julia -e 'using Sobol; @assert isdefined(:Sobol); @assert typeof(Sobol) === Module'
+  - julia test/runtests.jl
