@@ -59,6 +59,7 @@ In practical applications, however, this point is rarely reached.
 To initialize a Sobol sequence `s` in `N` dimensions (`0 < N < 1112`), use
 the `SobolSeq` constructor:
 ```
+using Sobol
 s = SobolSeq(N)
 ```
 Then
