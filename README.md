@@ -36,7 +36,7 @@ and takes advantage of the [NLopt.jl](https://github.com/JuliaOpt/NLopt.jl)
 Julia module to ensure that the NLopt library is installed when you
 `Pkg.add("Sobol")` in Julia.
 
-It is important emphasize that SGJ's implementation was based on the
+It is important to emphasize that SGJ's implementation was based on the
 mathematical description of the algorithms only, and was done without
 reference to the Fortran code from the *Trans. Math. Soft.* (*TOMS*)
 papers.  The reason is that *TOMS* code is not free/open-source
