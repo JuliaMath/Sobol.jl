@@ -1,4 +1,5 @@
 # The Sobol module for Julia
+[![Build Status](https://travis-ci.org/stevengj/Sobol.jl.png)](https://travis-ci.org/stevengj/Sobol.jl)
 
 This module provides a [Julia-language](http://julialang.org/)
 interface to a free [Sobol low-discrepancy-sequence
