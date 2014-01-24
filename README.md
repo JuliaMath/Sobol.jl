@@ -6,7 +6,7 @@ interface to a free [Sobol low-discrepancy-sequence
 generates "quasi-random" sequences of points in N dimensions which are
 equally distributed over an N-dimensional hypercube.
 
-The advantage of a LDS over truly random (or pseudo-random) numbers is
+The advantage of an LDS over truly random (or pseudo-random) numbers is
 that an LDS (which is *not* random) tends to be more evenly
 distributed for finite numbers of points.  This is used in
 [quasi-Monte Carlo
@@ -44,7 +44,7 @@ terms](http://www.acm.org/publications/policies/softwarecrnotice)).
 (SGJ did re-use a table of primitive polynomials and coefficients from
 the *TOMS* code, but since this is merely a tabulation of mathematical
 facts it is not copyrightable.)  SGJ's implementation in NLopt, along
-with these Julia wrappers, are free/open-source software under the [MIT
+with these Julia wrappers, is free/open-source software under the [MIT
 ("expat") license](http://opensource.org/licenses/MIT).
 
 Technically, we implement a 32-bit Sobol sequence.  After
