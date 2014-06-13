@@ -13,7 +13,7 @@ distributed for finite numbers of points.  This is used in
 [quasi-Monte Carlo
 methods](https://en.wikipedia.org/wiki/Quasi-Monte_Carlo_method) in
 order to accelerate convergence compared to traditional [Monte Carlo
-methds](https://en.wikipedia.org/wiki/Monte_Carlo_method) employing
+methods](https://en.wikipedia.org/wiki/Monte_Carlo_method) employing
 random sequences.
 
 It can be installed using the Julia package manager via `Pkg.add("Sobol")`.
