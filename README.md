@@ -20,7 +20,7 @@ It can be installed using the Julia package manager via `Pkg.add("Sobol")`.
 
 ## Algorithm
 
-This is an independent implementation, by Steven G. Johnson, of the
+This is an independent implementation, originally by Steven G. Johnson, of the
 algorithm for generation of Sobol sequences in up to 1111 dimensions
 described in:
 
@@ -28,9 +28,10 @@ described in:
    **14** (1), pp. 88-100 (1988).
 * S. Joe and F. Y. Kuo, *ACM Trans. Math. Soft* **29** (1), 49-57 (2003).
 
-Originally implementated in C in 2007 as
+Originally implemented in C in 2007 as
 [part of](https://github.com/stevengj/nlopt/blob/master/util/sobolseq.c) the
-[NLopt library](http://ab-initio.mit.edu/nlopt) for nonlinear optimization, it has been ported by [Ken-B](https://github.com/Ken-B) into pure Julia code with the same performance.
+[NLopt library](http://ab-initio.mit.edu/nlopt) for nonlinear optimization, the
+code was subsequently converted by [Ken-B](https://github.com/Ken-B) into pure Julia with roughly the same performance.
 
 It is important to emphasize that SGJ's implementation was based on the
 mathematical description of the algorithms only, and was done without
@@ -41,7 +42,7 @@ terms](http://www.acm.org/publications/policies/softwarecrnotice)).
 (SGJ did re-use a table of primitive polynomials and coefficients from
 the *TOMS* code, but since this is merely a tabulation of mathematical
 facts it is not copyrightable.)  SGJ's implementation in NLopt, along
-with these Julia wrappers, is free/open-source software under the [MIT
+with this Julia translation, is free/open-source software under the [MIT
 ("expat") license](http://opensource.org/licenses/MIT).
 
 Technically, we implement a 32-bit Sobol sequence.  After
