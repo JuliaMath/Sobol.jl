@@ -58,15 +58,18 @@ function next!{T<:FloatingPoint}(s::SobolSeq, x::AbstractVector{T})
 
     s.n += one(s.n)
     c = @compat UInt32(trailing_zeros(s.n))
+    sb = s.b
+    sx = s.x
+    sm = s.m
     for i=1:ndims(s)
-        b = s.b[i]
+        @inbounds b = sb[i]
         if b >= c
-            s.x[i] $= s.m[i,c+1] << (b-c)
-            x[i] = s.x[i] / (one(UInt32) << (b + one(UInt32)))
+            @inbounds sx[i] $= sm[i,c+1] << (b-c)
+            @inbounds x[i] = sx[i] / (one(UInt32) << (b + one(UInt32)))
         else
-            s.x[i] = (s.x[i] << (c-b)) $ s.m[i,c+1]
-            s.b[i] = c
-            x[i] = s.x[i] / (one(UInt32) << (c + one(UInt32)))
+            @inbounds sx[i] = (sx[i] << (c-b)) $ sm[i,c+1]
+            @inbounds sb[i] = c
+            @inbounds x[i] = sx[i] / (one(UInt32) << (c + one(UInt32)))
         end
     end
     return x
