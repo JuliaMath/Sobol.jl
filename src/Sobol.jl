@@ -80,11 +80,12 @@ next(s::SobolSeq) = next!(s, Array(Float64,ndims(s)))
 # adopt the suggestion of the Joe and Kuo paper, which in turn
 # is taken from Acworth et al (1998), of skipping a number of
 # points equal to the largest power of 2 smaller than n
-function skip(s::SobolSeq, n::Integer)
+function skip!(s::SobolSeq, n::Integer, x)
     nskip = 1 << floor(Int,log2(n))
-    for unused=1:nskip; next(s); end
+    for unused=1:nskip; next!(s,x); end
     return nothing
 end
+skip(s::SobolSeq, n::Integer) = skip!(s, n, Array(Float64, ndims(s)))
 
 function show(io::IO, s::SobolSeq)
     print(io, "$(ndims(s))-dimensional Sobol sequence on [0,1]^$(ndims(s))")
