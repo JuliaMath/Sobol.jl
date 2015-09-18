@@ -1,8 +1,8 @@
 # The Sobol module for Julia
 [![Build Status](https://travis-ci.org/stevengj/Sobol.jl.png)](https://travis-ci.org/stevengj/Sobol.jl)
 
-This module provides a [Julia-language](http://julialang.org/)
-interface to a free [Sobol low-discrepancy-sequence
+This module provides a free [Julia-language](http://julialang.org/)
+[Sobol low-discrepancy-sequence
 (LDS)](https://en.wikipedia.org/wiki/Sobol_sequence) implementation.  This
 generates "quasi-random" sequences of points in N dimensions which are
 equally distributed over an N-dimensional hypercube.
