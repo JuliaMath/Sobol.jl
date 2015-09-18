@@ -28,13 +28,9 @@ described in:
    **14** (1), pp. 88-100 (1988).
 * S. Joe and F. Y. Kuo, *ACM Trans. Math. Soft* **29** (1), 49-57 (2003).
 
-Our implementation is in C, and was implemented in 2007 by SGJ as
+Originally implementated in C in 2007 as
 [part of](https://github.com/stevengj/nlopt/blob/master/util/sobolseq.c) the
-[NLopt library](http://ab-initio.mit.edu/nlopt) for nonlinear optimization.
-This Julia module is simply a thin wrapper around that C implementation,
-and takes advantage of the [NLopt.jl](https://github.com/JuliaOpt/NLopt.jl)
-Julia module to ensure that the NLopt library is installed when you
-`Pkg.add("Sobol")` in Julia.
+[NLopt library](http://ab-initio.mit.edu/nlopt) for nonlinear optimization, it has been ported by [Ken-B](https://github.com/Ken-B) into pure Julia code with the same performance.
 
 It is important to emphasize that SGJ's implementation was based on the
 mathematical description of the algorithms only, and was done without
