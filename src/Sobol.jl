@@ -48,7 +48,7 @@ function SobolSeq(N::Int)
     SobolSeq{N}(m,zeros(UInt32,N),zeros(UInt32,N),zero(UInt32))
 end
 
-function next!{T<:FloatingPoint}(s::SobolSeq, x::AbstractVector{T})
+function next!{T<:AbstractFloat}(s::SobolSeq, x::AbstractVector{T})
     length(x) != ndims(s) && throw(BoundsError())
 
     if s.n == typemax(s.n)
