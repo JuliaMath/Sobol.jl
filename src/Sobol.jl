@@ -48,12 +48,14 @@ function SobolSeq(N::Int)
     SobolSeq{N}(m,zeros(UInt32,N),zeros(UInt32,N),zero(UInt32))
 end
 
+# 1/2^m for m = 1:32
+const scale2m = exp2(-(1:32))
+
 function next!{T<:AbstractFloat}(s::SobolSeq, x::AbstractVector{T})
     length(x) != ndims(s) && throw(BoundsError())
 
     if s.n == typemax(s.n)
-        rand!(x)
-        return nothing
+        return rand!(x)
     end
 
     s.n += one(s.n)
@@ -65,11 +67,11 @@ function next!{T<:AbstractFloat}(s::SobolSeq, x::AbstractVector{T})
         @inbounds b = sb[i]
         if b >= c
             @inbounds sx[i] $= sm[i,c+1] << (b-c)
-            @inbounds x[i] = sx[i] / (one(UInt32) << (b + one(UInt32)))
+            @inbounds x[i] = sx[i] * scale2m[b+1]
         else
             @inbounds sx[i] = (sx[i] << (c-b)) $ sm[i,c+1]
             @inbounds sb[i] = c
-            @inbounds x[i] = sx[i] / (one(UInt32) << (c + one(UInt32)))
+            @inbounds x[i] = sx[i] * scale2m[c+1]
         end
     end
     return x
