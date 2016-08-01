@@ -3,7 +3,8 @@ VERSION >= v"0.4.0-dev+6521" && __precompile__()
 module Sobol
 using Compat
 
-import Base: ndims, skip, next, start, done, show, writemime
+import Base: ndims, skip, next, start, done, show
+@compat import Base.show
 export SobolSeq, ScaledSobolSeq, next!
 
 include("soboldata.jl") #loads `sobol_a` and `sobol_minit`
@@ -92,7 +93,7 @@ skip(s::SobolSeq, n::Integer) = skip!(s, n, Array(Float64, ndims(s)))
 function show(io::IO, s::SobolSeq)
     print(io, "$(ndims(s))-dimensional Sobol sequence on [0,1]^$(ndims(s))")
 end
-function writemime(io::IO, ::MIME"text/html", s::SobolSeq)
+@compat function show(io::IO, ::MIME"text/html", s::SobolSeq)
     print(io, "$(ndims(s))-dimensional Sobol sequence on [0,1]<sup>$(ndims(s))</sup>")
 end
 
@@ -159,7 +160,7 @@ function show(io::IO, s::ScaledSobolSeq)
     end
 end
 
-function writemime(io::IO, ::MIME"text/html", s::ScaledSobolSeq)
+@compat function show(io::IO, ::MIME"text/html", s::ScaledSobolSeq)
     N = ndims(s)
     lb = s.lb; ub = s.ub
     print(io, "$N-dimensional scaled Sobol sequence on [$(lb[1]),$(ub[1])]")
