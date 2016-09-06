@@ -128,7 +128,7 @@ function next!(s::SobolSeq, x::Vector{Float64},
     end
     return x
 end
-next(s::SobolSeq, lb::Vector, ub::Vector) = next!(s, Array(Float64,N), lb, ub)
+next{N}(s::SobolSeq{N}, lb::Vector, ub::Vector) = next!(s, Array(Float64,N), lb, ub)
 
 next!(s::ScaledSobolSeq, x::Vector{Float64}) = next!(s.s, x, s.lb, s.ub)
 next(s::ScaledSobolSeq) = next!(s, Array(Float64,ndims(s)))
