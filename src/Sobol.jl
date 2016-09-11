@@ -1,4 +1,4 @@
-VERSION >= v"0.4.0-dev+6521" && __precompile__()
+__precompile__()
 
 module Sobol
 using Compat
@@ -17,7 +17,7 @@ type SobolSeq{N}
     n::UInt32 #number of x's generated so far
 end
 
-ndims{N}(s::SobolSeq{N}) = N
+ndims{N}(s::SobolSeq{N}) = N::Int
 
 function SobolSeq(N::Int)
     (N < 0 || N > 1111) && error("invalid Sobol dimension")
@@ -60,7 +60,7 @@ function next!{T<:AbstractFloat}(s::SobolSeq, x::AbstractVector{T})
     end
 
     s.n += one(s.n)
-    c = @compat UInt32(trailing_zeros(s.n))
+    c = UInt32(trailing_zeros(s.n))
     sb = s.b
     sx = s.x
     sm = s.m
@@ -77,7 +77,7 @@ function next!{T<:AbstractFloat}(s::SobolSeq, x::AbstractVector{T})
     end
     return x
 end
-next(s::SobolSeq) = next!(s, Array(Float64,ndims(s)))
+next(s::SobolSeq) = next!(s, Array{Float64,1}(ndims(s)))
 
 # if we know in advance how many points (n) we want to compute, then
 # adopt the suggestion of the Joe and Kuo paper, which in turn
@@ -88,7 +88,7 @@ function skip!(s::SobolSeq, n::Integer, x)
     for unused=1:nskip; next!(s,x); end
     return nothing
 end
-skip(s::SobolSeq, n::Integer) = skip!(s, n, Array(Float64, ndims(s)))
+skip(s::SobolSeq, n::Integer) = skip!(s, n, Array{Float64,1}(ndims(s)))
 
 function show(io::IO, s::SobolSeq)
     print(io, "$(ndims(s))-dimensional Sobol sequence on [0,1]^$(ndims(s))")
@@ -115,7 +115,7 @@ type ScaledSobolSeq
         new(SobolSeq(N), lb, ub)
 end
 SobolSeq(N::Integer, lb, ub) =
-    ScaledSobolSeq(N, copy!(Array(Float64,N),lb), copy!(Array(Float64,N),ub))
+    ScaledSobolSeq(N, copy!(Array{Float64,1}(N),lb), copy!(Array{Float64,1}(N),ub))
 
 ndims(s::ScaledSobolSeq) = ndims(s.s)
 
@@ -128,10 +128,10 @@ function next!(s::SobolSeq, x::Vector{Float64},
     end
     return x
 end
-next{N}(s::SobolSeq{N}, lb::Vector, ub::Vector) = next!(s, Array(Float64,N), lb, ub)
+next{N}(s::SobolSeq{N}, lb::Vector, ub::Vector) = next!(s, Array{Float64,1}(N), lb, ub)
 
 next!(s::ScaledSobolSeq, x::Vector{Float64}) = next!(s.s, x, s.lb, s.ub)
-next(s::ScaledSobolSeq) = next!(s, Array(Float64,ndims(s)))
+next(s::ScaledSobolSeq) = next!(s, Array{Float64,1}(ndims(s)))
 
 start(s::ScaledSobolSeq) = s
 next(s::ScaledSobolSeq, s_::ScaledSobolSeq) = (next(s), s_)
