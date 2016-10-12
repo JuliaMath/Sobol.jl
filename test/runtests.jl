@@ -46,3 +46,6 @@ for i = 1:length(N)
         @test_approx_eq_eps t JoeKuo[i,j] 1e-4
     end
 end
+
+# issue #8
+@test [x[1] for x in take(Sobol.SobolSeq(1),5)] == [0.5,0.75,0.25,0.375,0.875]

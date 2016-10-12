@@ -104,6 +104,11 @@ end
 start(s::SobolSeq) = s
 next(s::SobolSeq, s_::SobolSeq) = (next(s), s_)
 done(s::SobolSeq, s_::SobolSeq) = false
+Base.eltype{N}(::Type{SobolSeq{N}}) = Vector{Float64}
+if VERSION >= v"0.5.0-dev+3305" # Julia #15123
+    Base.iteratorsize{N}(::Type{SobolSeq{N}}) = Base.IsInfinite()
+    Base.iteratoreltype{N}(::Type{SobolSeq{N}}) = Base.HasEltype()
+end
 
 # Convenience wrapper for scaled Sobol sequences
 
