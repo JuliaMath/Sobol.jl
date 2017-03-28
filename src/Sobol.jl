@@ -41,7 +41,7 @@ function SobolSeq(N::Int)
             ac = a
             m[i,j] = m[i,j-d]
             for k = 0:d-1
-                m[i,j] $= ((ac & one(UInt32)) * m[i, j-d+k]) << (d-k)
+                @inbounds m[i,j] = m[i,j] ⊻ (((ac & one(UInt32)) * m[i, j-d+k]) << (d-k))
                 ac >>= 1
             end
         end
@@ -50,7 +50,7 @@ function SobolSeq(N::Int)
 end
 
 # 1/2^m for m = 1:32
-const scale2m = exp2(-(1:32))
+const scale2m = @compat exp2.(-(1:32))
 
 function next!{T<:AbstractFloat}(s::SobolSeq, x::AbstractVector{T})
     length(x) != ndims(s) && throw(BoundsError())
@@ -67,10 +67,10 @@ function next!{T<:AbstractFloat}(s::SobolSeq, x::AbstractVector{T})
     for i=1:ndims(s)
         @inbounds b = sb[i]
         if b >= c
-            @inbounds sx[i] $= sm[i,c+1] << (b-c)
+            @inbounds sx[i] = sx[i] ⊻ (sm[i,c+1] << (b-c))
             @inbounds x[i] = sx[i] * scale2m[b+1]
         else
-            @inbounds sx[i] = (sx[i] << (c-b)) $ sm[i,c+1]
+            @inbounds sx[i] = (sx[i] << (c-b)) ⊻ sm[i,c+1]
             @inbounds sb[i] = c
             @inbounds x[i] = sx[i] * scale2m[c+1]
         end

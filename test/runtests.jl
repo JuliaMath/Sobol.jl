@@ -1,4 +1,4 @@
-using Sobol
+using Sobol, Compat
 using Base.Test
 
 # test integrand from Joe and Kuo paper (integrates to 1)
@@ -13,7 +13,7 @@ end
 
 function testint(N, n)
     s = SobolSeq(N)
-    x = Array(Float64, N)
+    x = Array{Float64}(N)
     skip(s, n)
     sum = 0.0
     for j = 1:n
@@ -43,9 +43,10 @@ for i = 1:length(N)
     for j = 1:length(n)
         println("  ... with $(n[j]) samples")
         t = testint(N[i], n[j])
-        @test_approx_eq_eps t JoeKuo[i,j] 1e-4
+        @test abs(t - JoeKuo[i,j]) < 1e-4
     end
 end
 
 # issue #8
+using Compat.Iterators: take
 @test [x[1] for x in take(Sobol.SobolSeq(1),5)] == [0.5,0.75,0.25,0.375,0.875]
