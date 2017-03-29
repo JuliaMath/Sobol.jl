@@ -49,4 +49,4 @@ end
 
 # issue #8
 using Compat.Iterators: take
-@test [x[1] for x in take(Sobol.SobolSeq(1),5)] == [0.5,0.75,0.25,0.375,0.875]
+@test [x[1] for x in collect(take(Sobol.SobolSeq(1),5))] == [0.5,0.75,0.25,0.375,0.875]
