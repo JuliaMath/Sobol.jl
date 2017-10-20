@@ -20,7 +20,7 @@ end
 ndims{N}(s::SobolSeq{N}) = N::Int
 
 function SobolSeq(N::Int)
-    (N < 0 || N > 1111) && error("invalid Sobol dimension")
+    (N < 0 || N > (length(sobol_a) + 1)) && error("invalid Sobol dimension")
 
     m = ones(UInt32, (N, 32))
 
