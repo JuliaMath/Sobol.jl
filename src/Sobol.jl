@@ -35,7 +35,7 @@ function SobolSeq(N::Int)
 
         #set initial values of m from table
         # TODO transpose sobol_minit for faster column access?
-        m[i, 1:d] = sobol_minit[i-1, 1:d]
+        m[i, 1:d] = sobol_minit[i-1]
         #fill in remaining values using recurrence
         for j = (d+1):32
             ac = a
