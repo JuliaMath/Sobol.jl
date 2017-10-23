@@ -34,7 +34,6 @@ function SobolSeq(N::Int)
         d = floor(Int, log2(a)) #degree of poly
 
         #set initial values of m from table
-        # TODO transpose sobol_minit for faster column access?
         m[i, 1:d] = sobol_minit[i-1]
         #fill in remaining values using recurrence
         for j = (d+1):32
