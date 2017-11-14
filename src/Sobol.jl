@@ -20,7 +20,7 @@ end
 ndims{N}(s::SobolSeq{N}) = N::Int
 
 function SobolSeq(N::Int)
-    (N < 0 || N > 1111) && error("invalid Sobol dimension")
+    (N < 0 || N > (length(sobol_a) + 1)) && error("invalid Sobol dimension")
 
     m = ones(UInt32, (N, 32))
 
@@ -34,8 +34,7 @@ function SobolSeq(N::Int)
         d = floor(Int, log2(a)) #degree of poly
 
         #set initial values of m from table
-        # TODO transpose sobol_minit for faster column access?
-        m[i, 1:d] = sobol_minit[i-1, 1:d]
+        m[i, 1:d] = sobol_minit[1:d, i - 1]
         #fill in remaining values using recurrence
         for j = (d+1):32
             ac = a
