@@ -123,8 +123,8 @@ SobolSeq(N::Integer, lb, ub) =
 
 ndims(s::ScaledSobolSeq) = ndims(s.s)
 
-function next!(s::SobolSeq, x::Vector{Float64},
-                  lb::Vector, ub::Vector)
+function next!(s::SobolSeq, x::AbstractVector{Float64},
+                  lb::AbstractVector, ub::AbstractVector)
     length(x) < ndims(s) && throw(BoundsError())
     next!(s,x)
     for i=1:ndims(s)
@@ -132,9 +132,9 @@ function next!(s::SobolSeq, x::Vector{Float64},
     end
     return x
 end
-next{N}(s::SobolSeq{N}, lb::Vector, ub::Vector) = next!(s, Array{Float64,1}(N), lb, ub)
+next{N}(s::SobolSeq{N}, lb::AbstractVector, ub::AbstractVector) = next!(s, Array{Float64,1}(N), lb, ub)
 
-next!(s::ScaledSobolSeq, x::Vector{Float64}) = next!(s.s, x, s.lb, s.ub)
+next!(s::ScaledSobolSeq, x::AbstractVector{Float64}) = next!(s.s, x, s.lb, s.ub)
 next(s::ScaledSobolSeq) = next!(s, Array{Float64,1}(ndims(s)))
 
 start(s::ScaledSobolSeq) = s
