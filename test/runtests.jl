@@ -1,5 +1,5 @@
 using Sobol, Compat
-using Base.Test
+using Compat.Test
 
 # compare results with results from C++ code sobol.cc published on 
 # http://web.maths.unsw.edu.au/~fkuo/sobol/
@@ -29,5 +29,5 @@ for dim in dimensions
 end
 
 # issue #8
-using Compat.Iterators: take
+using Base.Iterators: take
 @test [x[1] for x in collect(take(Sobol.SobolSeq(1),5))] == [0.5,0.75,0.25,0.375,0.875]

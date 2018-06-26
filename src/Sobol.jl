@@ -1,23 +1,22 @@
 __precompile__()
 
 module Sobol
-using Compat
-
-import Base: ndims, skip, next, start, done, show
-@compat import Base.show
+using Compat, Compat.Random
 export SobolSeq, ScaledSobolSeq, next!
 
 include("soboldata.jl") #loads `sobol_a` and `sobol_minit`
 
+abstract type AbstractSobolSeq{N} end
+
 # N iis the dimension of sequence being generated
-type SobolSeq{N}
+mutable struct SobolSeq{N} <: AbstractSobolSeq{N}
     m::Array{UInt32,2} #array of size (sdim, 32)
     x::Array{UInt32,1} #previous x = x_n, array of length sdim
     b::Array{UInt32,1} #position of fixed point in x[i] is after bit b[i]
     n::UInt32 #number of x's generated so far
 end
 
-ndims{N}(s::SobolSeq{N}) = N::Int
+ndims(s::AbstractSobolSeq{N}) where {N} = N::Int
 
 function SobolSeq(N::Int)
     (N < 0 || N > (length(sobol_a) + 1)) && error("invalid Sobol dimension")
@@ -47,11 +46,12 @@ function SobolSeq(N::Int)
     end
     SobolSeq{N}(m,zeros(UInt32,N),zeros(UInt32,N),zero(UInt32))
 end
+SobolSeq(N::Integer) = SobolSeq(Int(N))
 
 # 1/2^m for m = 1:32
-const scale2m = @compat exp2.(-(1:32))
+const scale2m = exp2.(-(1:32))
 
-function next!{T<:AbstractFloat}(s::SobolSeq, x::AbstractVector{T})
+function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat})
     length(x) != ndims(s) && throw(BoundsError())
 
     if s.n == typemax(s.n)
@@ -76,7 +76,7 @@ function next!{T<:AbstractFloat}(s::SobolSeq, x::AbstractVector{T})
     end
     return x
 end
-next(s::SobolSeq) = next!(s, Array{Float64,1}(ndims(s)))
+next!(s::SobolSeq) = next!(s, Array{Float64,1}(undef, ndims(s)))
 
 # if we know in advance how many points (n) we want to compute, then
 # adopt the suggestion of the Joe and Kuo paper, which in turn
@@ -87,12 +87,12 @@ function skip!(s::SobolSeq, n::Integer, x)
     for unused=1:nskip; next!(s,x); end
     return nothing
 end
-skip(s::SobolSeq, n::Integer) = skip!(s, n, Array{Float64,1}(ndims(s)))
+Base.skip(s::SobolSeq, n::Integer) = skip!(s, n, Array{Float64,1}(ndims(s)))
 
-function show(io::IO, s::SobolSeq)
+function Base.show(io::IO, s::SobolSeq)
     print(io, "$(ndims(s))-dimensional Sobol sequence on [0,1]^$(ndims(s))")
 end
-@compat function show(io::IO, ::MIME"text/html", s::SobolSeq)
+function Base.show(io::IO, ::MIME"text/html", s::SobolSeq)
     print(io, "$(ndims(s))-dimensional Sobol sequence on [0,1]<sup>$(ndims(s))</sup>")
 end
 
@@ -100,31 +100,27 @@ end
 # Technically, the Sobol sequence ends after 2^32-1 points, but it
 # falls back on pseudorandom numbers after this.  In practice, one is
 # unlikely to reach that point.
-start(s::SobolSeq) = s
-next(s::SobolSeq, s_::SobolSeq) = (next(s), s_)
-done(s::SobolSeq, s_::SobolSeq) = false
-Base.eltype{N}(::Type{SobolSeq{N}}) = Vector{Float64}
-if VERSION >= v"0.5.0-dev+3305" # Julia #15123
-    Base.iteratorsize{N}(::Type{SobolSeq{N}}) = Base.IsInfinite()
-    Base.iteratoreltype{N}(::Type{SobolSeq{N}}) = Base.HasEltype()
-end
+Base.start(s::AbstractSobolSeq) = nothing
+Base.next(s::AbstractSobolSeq, state) = (next!(s), state)
+Base.done(s::AbstractSobolSeq, state) = false
+Base.eltype(::Type{<:AbstractSobolSeq}) = Vector{Float64}
+Compat.IteratorSize(::Type{<:AbstractSobolSeq}) = Base.IsInfinite()
+Compat.IteratorEltype(::Type{<:AbstractSobolSeq}) = Base.HasEltype()
 
 # Convenience wrapper for scaled Sobol sequences
 
-type ScaledSobolSeq
-    s::SobolSeq
+struct ScaledSobolSeq{N} <: AbstractSobolSeq{N}
+    s::SobolSeq{N}
     lb::Vector{Float64}
     ub::Vector{Float64}
-    ScaledSobolSeq(N::Integer, lb::Vector{Float64}, ub::Vector{Float64}) =
-        new(SobolSeq(N), lb, ub)
+    ScaledSobolSeq(lb::Vector{Float64}, ub::Vector{Float64}) =
+        new{N}(SobolSeq(N), lb, ub)
 end
 SobolSeq(N::Integer, lb, ub) =
-    ScaledSobolSeq(N, copy!(Array{Float64,1}(N),lb), copy!(Array{Float64,1}(N),ub))
+    ScaledSobolSeq{Int(N)}(copy!(Vector{Float64}(undef,N), lb), copy!(Vector{Float64}(undef,N), ub))
 
-ndims(s::ScaledSobolSeq) = ndims(s.s)
-
-function next!(s::SobolSeq, x::AbstractVector{Float64},
-                  lb::AbstractVector, ub::AbstractVector)
+function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat},
+               lb::AbstractVector, ub::AbstractVector)
     length(x) < ndims(s) && throw(BoundsError())
     next!(s,x)
     for i=1:ndims(s)
@@ -132,18 +128,14 @@ function next!(s::SobolSeq, x::AbstractVector{Float64},
     end
     return x
 end
-next{N}(s::SobolSeq{N}, lb::AbstractVector, ub::AbstractVector) = next!(s, Array{Float64,1}(N), lb, ub)
+next!(s::SobolSeq{N}, lb::AbstractVector, ub::AbstractVector) where {N} = next!(s, Vector{Float64}(undef, N), lb, ub)
 
-next!(s::ScaledSobolSeq, x::AbstractVector{Float64}) = next!(s.s, x, s.lb, s.ub)
-next(s::ScaledSobolSeq) = next!(s, Array{Float64,1}(ndims(s)))
+next!(s::ScaledSobolSeq, x::AbstractVector{<:AbstractFloat}) = next!(s.s, x, s.lb, s.ub)
+Base.next(s::ScaledSobolSeq) = next!(s, Vector{Float64}(undef, ndims(s)))
 
-start(s::ScaledSobolSeq) = s
-next(s::ScaledSobolSeq, s_::ScaledSobolSeq) = (next(s), s_)
-done(s::ScaledSobolSeq, s_::ScaledSobolSeq) = false
+Base.skip(s::ScaledSobolSeq, n) = skip(s.s, n)
 
-skip(s::ScaledSobolSeq, n) = skip(s.s, n)
-
-function show(io::IO, s::ScaledSobolSeq)
+function Base.show(io::IO, s::ScaledSobolSeq)
     lb = s.lb; ub = s.ub
     N = ndims(s)
     print(io, "$N-dimensional scaled Sobol sequence on [$(lb[1]),$(ub[1])]")
@@ -164,7 +156,7 @@ function show(io::IO, s::ScaledSobolSeq)
     end
 end
 
-@compat function show(io::IO, ::MIME"text/html", s::ScaledSobolSeq)
+function Base.show(io::IO, ::MIME"text/html", s::ScaledSobolSeq)
     N = ndims(s)
     lb = s.lb; ub = s.ub
     print(io, "$N-dimensional scaled Sobol sequence on [$(lb[1]),$(ub[1])]")
