@@ -64,7 +64,7 @@ s = SobolSeq(N)
 ```
 Then
 ```
-x = next(s)
+x = next!(s)
 ```
 returns the next point (a `Vector{Float64}`) in the sequence; each point
 lies in the hypercube [0,1]<sup>N</sup>.   You can also compute the next
@@ -111,7 +111,7 @@ the [0,1]×[0,1] unit square!
 using Sobol
 using PyPlot
 s = SobolSeq(2)
-p = hcat([next(s) for i = 1:1024]...)'
+p = hcat([next!(s) for i = 1:1024]...)'
 subplot(111, aspect="equal")
 plot(p[:,1], p[:,2], "r.")
 ```
