@@ -103,9 +103,13 @@ end
 # Technically, the Sobol sequence ends after 2^32-1 points, but it
 # falls back on pseudorandom numbers after this.  In practice, one is
 # unlikely to reach that point.
-Base.start(s::AbstractSobolSeq) = nothing
-Base.next(s::AbstractSobolSeq, state) = (next!(s), state)
-Base.done(s::AbstractSobolSeq, state) = false
+@static if isdefined(Base, :iterate)
+    Base.iterate(s::AbstractSobolSeq, state=nothing) = (next!(s), state)
+else
+    Base.start(s::AbstractSobolSeq) = nothing
+    Base.next(s::AbstractSobolSeq, state) = (next!(s), state)
+    Base.done(s::AbstractSobolSeq, state) = false
+end
 Base.eltype(::Type{<:AbstractSobolSeq}) = Vector{Float64}
 Compat.IteratorSize(::Type{<:AbstractSobolSeq}) = Base.IsInfinite()
 Compat.IteratorEltype(::Type{<:AbstractSobolSeq}) = Base.HasEltype()
