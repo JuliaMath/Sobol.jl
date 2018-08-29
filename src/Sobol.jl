@@ -1,4 +1,4 @@
-VERSION < v"1.0.0" && __precompile__()
+__precompile__()
 
 module Sobol
 export SobolSeq, ScaledSobolSeq, iterate!
