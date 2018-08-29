@@ -2,7 +2,10 @@ VERSION < v"0.7.0-beta2.199" && __precompile__()
 
 module Sobol
 using Compat, Compat.Random
-export SobolSeq, ScaledSobolSeq, next!
+export SobolSeq, ScaledSobolSeq, next!, next
+@static if isdefined(Base, :next)
+    import Base: next
+end
 
 include("soboldata.jl") #loads `sobol_a` and `sobol_minit`
 
@@ -78,9 +81,6 @@ function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat})
 end
 next!(s::SobolSeq) = next!(s, Array{Float64,1}(undef, ndims(s)))
 
-@static if isdefined(Base, :next)
-    import Base: next
-end
 @deprecate next(s::AbstractSobolSeq) next!(s)
 
 # if we know in advance how many points (n) we want to compute, then
@@ -140,7 +140,7 @@ end
 next!(s::SobolSeq{N}, lb::AbstractVector, ub::AbstractVector) where {N} = next!(s, Vector{Float64}(undef, N), lb, ub)
 
 next!(s::ScaledSobolSeq, x::AbstractVector{<:AbstractFloat}) = next!(s.s, x, s.lb, s.ub)
-Base.next(s::ScaledSobolSeq) = next!(s, Vector{Float64}(undef, ndims(s)))
+next(s::ScaledSobolSeq) = next!(s, Vector{Float64}(undef, ndims(s)))
 
 Base.skip(s::ScaledSobolSeq, n) = skip(s.s, n)
 
