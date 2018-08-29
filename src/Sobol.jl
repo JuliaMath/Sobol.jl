@@ -78,7 +78,9 @@ function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat})
 end
 next!(s::SobolSeq) = next!(s, Array{Float64,1}(undef, ndims(s)))
 
-import Base: next
+@static if isdefined(Base, :next)
+    import Base: next
+end
 @deprecate next(s::AbstractSobolSeq) next!(s)
 
 # if we know in advance how many points (n) we want to compute, then
