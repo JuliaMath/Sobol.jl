@@ -1,11 +1,10 @@
-using Sobol, Compat
-using Compat.Test
+using Sobol, Test
 
-# compare results with results from C++ code sobol.cc published on 
+# compare results with results from C++ code sobol.cc published on
 # http://web.maths.unsw.edu.au/~fkuo/sobol/
 # with new-joe-kuo-6.21201 file used as input.
 #
-# Command line used to generate output is 
+# Command line used to generate output is
 #  ./sobol $N 1024 new-joe-kuo-6.21201 > exp_results_$N
 #
 # For each of the dimensions below
@@ -22,7 +21,7 @@ for dim in dimensions
             values = [parse(Float64, item) for item in split(line)]
             if length(values) > 0
                 @test x == values
-                next!(s, x)
+                iterate!(s, x)
             end
         end
     end
@@ -30,4 +29,4 @@ end
 
 # issue #8
 using Base.Iterators: take
-@test [x[1] for x in collect(take(Sobol.SobolSeq(1),5))] == [0.5,0.75,0.25,0.375,0.875]
+@test [x[1] for x in collect(take(Sobol.SobolSeq(1), 5))] == [0.5,0.75,0.25,0.375,0.875]
