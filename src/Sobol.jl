@@ -92,7 +92,7 @@ function skip!(s::SobolSeq, n::Integer, x)
     for unused=1:nskip; next!(s,x); end
     return nothing
 end
-Base.skip(s::SobolSeq, n::Integer) = skip!(s, n, Array{Float64,1}(ndims(s)))
+Base.skip(s::SobolSeq, n::Integer) = skip!(s, n, Array{Float64,1}(undef, ndims(s)))
 
 function Base.show(io::IO, s::SobolSeq)
     print(io, "$(ndims(s))-dimensional Sobol sequence on [0,1]^$(ndims(s))")
