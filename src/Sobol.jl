@@ -121,12 +121,14 @@ Compat.IteratorEltype(::Type{<:AbstractSobolSeq}) = Base.HasEltype()
 struct ScaledSobolSeq{N} <: AbstractSobolSeq{N}
     s::SobolSeq{N}
     lb::Vector{Float64}
-    ub::Vector{Float64}
-    ScaledSobolSeq(lb::Vector{Float64}, ub::Vector{Float64}) =
+    ub::Vector{Float64}    
+    function ScaledSobolSeq(lb::Vector{Float64}, ub::Vector{Float64})
+        N = length(lb)
+        @assert N == length(ub)
         new{N}(SobolSeq(N), lb, ub)
+    end
 end
-SobolSeq(N::Integer, lb, ub) =
-    ScaledSobolSeq{Int(N)}(copy!(Vector{Float64}(undef,N), lb), copy!(Vector{Float64}(undef,N), ub))
+SobolSeq(lb, ub) = ScaledSobolSeq(Float64.(lb), Float64.(ub))
 
 function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat},
                lb::AbstractVector, ub::AbstractVector)
