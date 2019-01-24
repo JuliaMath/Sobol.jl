@@ -44,6 +44,7 @@ end
     s = SobolSeq(lb,ub)
     @test s isa ScaledSobolSeq{3}
     @test first(s) == [0,1.5,1]
+    @test first(SobolSeq(x for x in lb, x for x in ub)) == [0,1.5,1]
     @test SobolSeq(N,lb,ub) isa ScaledSobolSeq{3}
     @test_throws DimensionMismatch SobolSeq(2,lb,ub)
 end
