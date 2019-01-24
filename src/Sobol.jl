@@ -122,11 +122,19 @@ struct ScaledSobolSeq{N} <: AbstractSobolSeq{N}
     s::SobolSeq{N}
     lb::Vector{Float64}
     ub::Vector{Float64}
-    ScaledSobolSeq(lb::Vector{Float64}, ub::Vector{Float64}) =
+    function ScaledSobolSeq(N::Integer, lb::Vector{<:Real}, ub::Vector{<:Real})
+        @assert(length(lb)==length(ub)==N)
         new{N}(SobolSeq(N), lb, ub)
+    end
 end
-SobolSeq(N::Integer, lb, ub) =
-    ScaledSobolSeq{Int(N)}(copy!(Vector{Float64}(undef,N), lb), copy!(Vector{Float64}(undef,N), ub))
+function SobolSeq(N::Int, lb::Vector{<:Real}, ub::Vector{<:Real})
+    ScaledSobolSeq(N, copyto!(Vector{Float64}(undef,N), lb), copyto!(Vector{Float64}(undef,N), ub))
+end
+function ScaledSobolSeq(lb::Vector{<:Real}, ub::Vector{<:Real})
+    N = length(lb)
+    ScaledSobolSeq(N, copyto!(Vector{Float64}(undef,N), lb), copyto!(Vector{Float64}(undef,N), ub))
+end
+
 
 function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat},
                lb::AbstractVector, ub::AbstractVector)
@@ -140,6 +148,7 @@ end
 next!(s::SobolSeq{N}, lb::AbstractVector, ub::AbstractVector) where {N} = next!(s, Vector{Float64}(undef, N), lb, ub)
 
 next!(s::ScaledSobolSeq, x::AbstractVector{<:AbstractFloat}) = next!(s.s, x, s.lb, s.ub)
+next!(s::ScaledSobolSeq) = next!(s.s, Array{Float64,1}(undef, ndims(s)), s.lb, s.ub)
 next(s::ScaledSobolSeq) = next!(s, Vector{Float64}(undef, ndims(s)))
 
 Base.skip(s::ScaledSobolSeq, n) = skip(s.s, n)
