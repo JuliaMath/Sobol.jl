@@ -45,7 +45,7 @@ facts it is not copyrightable.)  SGJ's implementation in NLopt, along
 with this Julia translation, is free/open-source software under the [MIT
 ("expat") license](http://opensource.org/licenses/MIT).
 
-Direction numbers used were derived from the file 
+Direction numbers used were derived from the file
 http://web.maths.unsw.edu.au/~fkuo/sobol/new-joe-kuo-6.21201
 
 Technically, we implement a 32-bit Sobol sequence.  After
@@ -84,13 +84,13 @@ Note, however, that the loop will *never terminate* unless you explicitly
 call `break` (or similar) in the loop body at some point of your choosing.
 
 We also provide a different `SobolSeq` constructor to provide
-a Sobol sequence rescaled to an arbitrary hypercube:
+an `N`-dimensional Sobol sequence rescaled to an arbitrary hypercube:
 ```
-s = SobolSeq(N, lb, ub)
+s = SobolSeq(lb, ub)
 ```
 where `lb` and `ub` are arrays (or other iterables) of length `N`, giving
 the lower and upper bounds of the hypercube, respectively.   For example,
-`SobolSeq(2, [-1,0,0],[1,3,2])` generates points in the box [-1,1]×[0,3]×[0,2].
+`SobolSeq([-1,0,0],[1,3,2])` generates points in the box [-1,1]×[0,3]×[0,2].
 
 If you know in advance the number `n` of points that you plan to
 generate, some authors suggest that better uniformity can be attained

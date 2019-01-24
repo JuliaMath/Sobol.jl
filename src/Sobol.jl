@@ -122,18 +122,15 @@ struct ScaledSobolSeq{N} <: AbstractSobolSeq{N}
     s::SobolSeq{N}
     lb::Vector{Float64}
     ub::Vector{Float64}
-    function ScaledSobolSeq(N::Integer, lb::Vector{<:Real}, ub::Vector{<:Real})
-        @assert(length(lb)==length(ub)==N)
-        new{N}(SobolSeq(N), lb, ub)
+    function ScaledSobolSeq{N}(lb::Vector{<:Real}, ub::Vector{<:Real}) where {N}
+        length(lb)==length(ub)==N || throw(DimensionMismatch("lb and ub do not have length $N"))
+        new(SobolSeq(N), lb, ub)
     end
 end
-function SobolSeq(N::Int, lb::Vector{<:Real}, ub::Vector{<:Real})
-    ScaledSobolSeq(N, copyto!(Vector{Float64}(undef,N), lb), copyto!(Vector{Float64}(undef,N), ub))
-end
-function ScaledSobolSeq(lb::Vector{<:Real}, ub::Vector{<:Real})
-    N = length(lb)
-    ScaledSobolSeq(N, copyto!(Vector{Float64}(undef,N), lb), copyto!(Vector{Float64}(undef,N), ub))
-end
+SobolSeq(N::Integer, lb, ub) =
+    ScaledSobolSeq{Int(N)}(copy!(Vector{Float64}(undef,N), lb), copy!(Vector{Float64}(undef,N), ub))
+SobolSeq(lb::AbstractVector{<:Real}, ub::AbstractVector{<:Real}) =
+    SobolSeq(length(lb), lb, ub)
 
 
 function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat},
