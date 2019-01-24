@@ -127,10 +127,12 @@ struct ScaledSobolSeq{N} <: AbstractSobolSeq{N}
         new(SobolSeq(N), lb, ub)
     end
 end
+SobolSeq(N::Integer, lb::Vector{Float64}, ub::Vector{Float64}) =
+    ScaledSobolSeq{Int(N)}(lb, ub)
 SobolSeq(N::Integer, lb, ub) =
     ScaledSobolSeq{Int(N)}(copyto!(Vector{Float64}(undef,N), lb), copyto!(Vector{Float64}(undef,N), ub))
 SobolSeq(lb::AbstractVector{<:Real}, ub::AbstractVector{<:Real}) =
-    SobolSeq(length(lb), lb, ub)
+    SobolSeq(length(lb), Vector{Float64}(lb), Vector{Float64}(ub))
 
 
 function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat},

@@ -38,8 +38,8 @@ end
 
 @testset "scaled" begin
     # ScaledSobolSeq constructors
-    lb = [-1.0,0,0]
-    ub = [1.0,3,2]
+    lb = [-1,0,0]
+    ub = [1,3,2]
     N = length(lb)
     s = SobolSeq(lb,ub)
     @test s isa ScaledSobolSeq{3}
