@@ -1,11 +1,6 @@
-VERSION < v"0.7.0-beta2.199" && __precompile__()
-
 module Sobol
-using Compat, Compat.Random
-export SobolSeq, ScaledSobolSeq, next!, next
-@static if isdefined(Base, :next)
-    import Base: next
-end
+using Random
+export SobolSeq, ScaledSobolSeq, next!
 
 include("soboldata.jl") #loads `sobol_a` and `sobol_minit`
 
@@ -81,8 +76,6 @@ function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat})
 end
 next!(s::SobolSeq) = next!(s, Array{Float64,1}(undef, ndims(s)))
 
-@deprecate next(s::AbstractSobolSeq) next!(s)
-
 # if we know in advance how many points (n) we want to compute, then
 # adopt the suggestion of the Joe and Kuo paper, which in turn
 # is taken from Acworth et al (1998), of skipping a number of
@@ -105,16 +98,10 @@ end
 # Technically, the Sobol sequence ends after 2^32-1 points, but it
 # falls back on pseudorandom numbers after this.  In practice, one is
 # unlikely to reach that point.
-@static if isdefined(Base, :iterate)
-    Base.iterate(s::AbstractSobolSeq, state=nothing) = (next!(s), state)
-else
-    Base.start(s::AbstractSobolSeq) = nothing
-    Base.next(s::AbstractSobolSeq, state) = (next!(s), state)
-    Base.done(s::AbstractSobolSeq, state) = false
-end
+Base.iterate(s::AbstractSobolSeq, state=nothing) = (next!(s), state)
 Base.eltype(::Type{<:AbstractSobolSeq}) = Vector{Float64}
-Compat.IteratorSize(::Type{<:AbstractSobolSeq}) = Base.IsInfinite()
-Compat.IteratorEltype(::Type{<:AbstractSobolSeq}) = Base.HasEltype()
+Base.IteratorSize(::Type{<:AbstractSobolSeq}) = Base.IsInfinite()
+Base.IteratorEltype(::Type{<:AbstractSobolSeq}) = Base.HasEltype()
 
 # Convenience wrapper for scaled Sobol sequences
 
@@ -144,7 +131,6 @@ next!(s::SobolSeq{N}, lb::AbstractVector, ub::AbstractVector) where {N} = next!(
 
 next!(s::ScaledSobolSeq, x::AbstractVector{<:AbstractFloat}) = next!(s.s, x, s.lb, s.ub)
 next!(s::ScaledSobolSeq) = next!(s.s, Array{Float64,1}(undef, ndims(s)), s.lb, s.ub)
-next(s::ScaledSobolSeq) = next!(s, Vector{Float64}(undef, ndims(s)))
 
 Base.skip(s::ScaledSobolSeq, n) = skip(s.s, n)
 
