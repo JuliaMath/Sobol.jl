@@ -1,5 +1,4 @@
-using Sobol, Compat
-using Compat.Test
+using Sobol, Test
 
 # compare results with results from C++ code sobol.cc published on
 # http://web.maths.unsw.edu.au/~fkuo/sobol/
