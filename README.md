@@ -101,6 +101,12 @@ facility is provided by:
 skip(s, n)
 ```
 
+Skipping exactly `n` elements is also possible:
+
+```
+skip(s, n, exact=true)
+```
+
 ## Example
 
 Here is a simple example, generating 1024 points in two dimensions and

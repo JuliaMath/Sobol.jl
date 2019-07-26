@@ -47,3 +47,18 @@ end
     @test SobolSeq(N,lb,ub) isa ScaledSobolSeq{3}
     @test_throws BoundsError SobolSeq(2,lb,ub)
 end
+
+@testset "skip exactly n" begin
+    # issue #22
+    # want to get the nth element
+    n = 10
+
+    s1 = SobolSeq(1)
+    x1 = [next!(s1)[1] for i in 1:n][n]
+
+    s2 = SobolSeq(1)
+    skip(s2, n-1, exact=true)
+    x2 = next!(s2)[1]
+
+    @test x1 == x2
+end

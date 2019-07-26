@@ -80,12 +80,21 @@ next!(s::SobolSeq) = next!(s, Array{Float64,1}(undef, ndims(s)))
 # adopt the suggestion of the Joe and Kuo paper, which in turn
 # is taken from Acworth et al (1998), of skipping a number of
 # points equal to the largest power of 2 smaller than n
-function skip!(s::SobolSeq, n::Integer, x)
+# if exactly n points are to be skipped, use the keyword exact=true.
+# 
+# skip!(s, n) skips m such that 2^m < n < 2^(m+1)
+# skip!(s, n, exact=true) skips m = n
+
+function skip!(s::SobolSeq, n::Integer, x; exact=false)
+    if exact
+      nskip = n
+    else
     nskip = 1 << floor(Int,log2(n))
+    end
     for unused=1:nskip; next!(s,x); end
     return nothing
 end
-Base.skip(s::SobolSeq, n::Integer) = skip!(s, n, Array{Float64,1}(undef, ndims(s)))
+Base.skip(s::SobolSeq, n::Integer; exact=false) = skip!(s, n, Array{Float64,1}(undef, ndims(s)); exact=exact)
 
 function Base.show(io::IO, s::SobolSeq)
     print(io, "$(ndims(s))-dimensional Sobol sequence on [0,1]^$(ndims(s))")
