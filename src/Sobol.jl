@@ -86,11 +86,7 @@ next!(s::SobolSeq) = next!(s, Array{Float64,1}(undef, ndims(s)))
 # skip!(s, n, exact=true) skips m = n
 
 function skip!(s::SobolSeq, n::Integer, x; exact=false)
-    if exact
-      nskip = n
-    else
-    nskip = 1 << floor(Int,log2(n))
-    end
+    nskip = exact ? n : 1 << floor(Int,log2(n))
     for unused=1:nskip; next!(s,x); end
     return nothing
 end
