@@ -72,7 +72,7 @@ point in-place with
 ```
 next!(s, x)
 ```
-where `x` should be a `Vector{Float64}` of length `N`.
+where `x` should be a `Vector` of length `N` of some floating-point type (e.g. `Float64`, `Float32`, or `BigFloat`).
 
 You can also use a `SobolSeq` as an iterator in Julia:
 ```
@@ -90,7 +90,7 @@ s = SobolSeq(lb, ub)
 ```
 where `lb` and `ub` are arrays (or other iterables) of length `N`, giving
 the lower and upper bounds of the hypercube, respectively.   For example,
-`SobolSeq([-1,0,0],[1,3,2])` generates points in the box [-1,1]×[0,3]×[0,2].
+`SobolSeq([-1,0,0],[1,3,2])` generates points in the box [-1,1]×[0,3]×[0,2].  (Although the generated points are `Float64` by default, in general the precision is determined by that of `lb` and `ub`.)
 
 If you know in advance the number `n` of points that you plan to
 generate, some authors suggest that better uniformity can be attained
