@@ -46,9 +46,6 @@ function SobolSeq(N::Int)
 end
 SobolSeq(N::Integer) = SobolSeq(Int(N))
 
-# 1/2^m for m = 1:32
-const scale2m = exp2.(-(1:32))
-
 function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat})
     length(x) != ndims(s) && throw(BoundsError())
 
@@ -63,13 +60,14 @@ function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat})
     sm = s.m
     for i=1:ndims(s)
         @inbounds b = sb[i]
+        # note: ldexp on Float64(sx[i]) is exact, independent of precision of x[i]
         if b >= c
             @inbounds sx[i] = sx[i] ⊻ (sm[i,c+1] << (b-c))
-            @inbounds x[i] = sx[i] * scale2m[b+1]
+            @inbounds x[i] = ldexp(Float64(sx[i]), ((~b) % Int32))
         else
             @inbounds sx[i] = (sx[i] << (c-b)) ⊻ sm[i,c+1]
             @inbounds sb[i] = c
-            @inbounds x[i] = sx[i] * scale2m[c+1]
+            @inbounds x[i] = ldexp(Float64(sx[i]), ((~c) % Int32))
         end
     end
     return x
@@ -81,7 +79,7 @@ next!(s::SobolSeq) = next!(s, Array{Float64,1}(undef, ndims(s)))
 # is taken from Acworth et al (1998), of skipping a number of
 # points equal to the largest power of 2 smaller than n
 # if exactly n points are to be skipped, use the keyword exact=true.
-# 
+#
 # skip!(s, n) skips m such that 2^m < n < 2^(m+1)
 # skip!(s, n, exact=true) skips m = n
 
@@ -110,17 +108,19 @@ Base.IteratorEltype(::Type{<:AbstractSobolSeq}) = Base.HasEltype()
 
 # Convenience wrapper for scaled Sobol sequences
 
-struct ScaledSobolSeq{N} <: AbstractSobolSeq{N}
+struct ScaledSobolSeq{N,T} <: AbstractSobolSeq{N}
     s::SobolSeq{N}
-    lb::Vector{Float64}
-    ub::Vector{Float64}
-    function ScaledSobolSeq{N}(lb::Vector{Float64}, ub::Vector{Float64}) where {N}
+    lb::Vector{T}
+    ub::Vector{T}
+    function ScaledSobolSeq{N,T}(lb::Vector{T}, ub::Vector{T}) where {N,T}
         length(lb)==length(ub)==N || throw(DimensionMismatch("lb and ub do not have length $N"))
         new(SobolSeq(N), lb, ub)
     end
 end
-SobolSeq(N::Integer, lb, ub) =
-    ScaledSobolSeq{Int(N)}(copyto!(Vector{Float64}(undef,N), lb), copyto!(Vector{Float64}(undef,N), ub))
+function SobolSeq(N::Integer, lb, ub)
+    T = typeof(sum(ub) - sum(lb))
+    ScaledSobolSeq{Int(N),T}(copyto!(Vector{T}(undef,N), lb), copyto!(Vector{T}(undef,N), ub))
+end
 SobolSeq(lb, ub) = SobolSeq(length(lb), lb, ub)
 
 function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat},
@@ -132,17 +132,20 @@ function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat},
     end
     return x
 end
-next!(s::SobolSeq{N}, lb::AbstractVector, ub::AbstractVector) where {N} = next!(s, Vector{Float64}(undef, N), lb, ub)
+function next!(s::SobolSeq{N}, lb::AbstractVector, ub::AbstractVector) where {N}
+    T = typeof(float((zero(eltype(ub)) - zero(eltype(lb)))))
+    next!(s, Vector{T}(undef, N), lb, ub)
+end
 
 next!(s::ScaledSobolSeq, x::AbstractVector{<:AbstractFloat}) = next!(s.s, x, s.lb, s.ub)
-next!(s::ScaledSobolSeq) = next!(s.s, Array{Float64,1}(undef, ndims(s)), s.lb, s.ub)
+next!(s::ScaledSobolSeq{N,T}) where {N,T} = next!(s.s, Vector{float(T)}(undef, N), s.lb, s.ub)
+Base.eltype(::Type{ScaledSobolSeq{N,T}}) where {N,T} = Vector{float(T)}
 
 Base.skip(s::ScaledSobolSeq, n) = skip(s.s, n)
 
-function Base.show(io::IO, s::ScaledSobolSeq)
+function Base.show(io::IO, s::ScaledSobolSeq{N,T}) where {N,T}
     lb = s.lb; ub = s.ub
-    N = ndims(s)
-    print(io, "$N-dimensional scaled Sobol sequence on [$(lb[1]),$(ub[1])]")
+    print(io, "$N-dimensional scaled $(float(T)) Sobol sequence on [$(lb[1]),$(ub[1])]")
     cnt = 1
     for i = 2:N
         if lb[i] == lb[i-1] && ub[i] == ub[i-1]
@@ -160,10 +163,9 @@ function Base.show(io::IO, s::ScaledSobolSeq)
     end
 end
 
-function Base.show(io::IO, ::MIME"text/html", s::ScaledSobolSeq)
-    N = ndims(s)
+function Base.show(io::IO, ::MIME"text/html", s::ScaledSobolSeq{N,T}) where {N,T}
     lb = s.lb; ub = s.ub
-    print(io, "$N-dimensional scaled Sobol sequence on [$(lb[1]),$(ub[1])]")
+    print(io, "$N-dimensional scaled $(float(T)) Sobol sequence on [$(lb[1]),$(ub[1])]")
     cnt = 1
     for i = 2:N
         if lb[i] == lb[i-1] && ub[i] == ub[i-1]
