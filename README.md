@@ -24,9 +24,13 @@ This is an independent implementation, originally by Steven G. Johnson, of the
 algorithm for generation of Sobol sequences in up to 21201 dimensions
 described in:
 
-* P. Bratley and B. L. Fox, Algorithm 659, *ACM Trans. Math. Soft.*
-   **14** (1), pp. 88-100 (1988).
-* S. Joe and F. Y. Kuo, *ACM Trans. Math. Soft* **29** (1), 49-57 (2003).
+* P. Bratley and B. L. Fox, [Algorithm 659: Implementing Sobol's quasirandom sequence generator][bratley88],
+  *ACM Trans. Math. Soft.* **14** (1), pp. 88-100 (1988), [doi:10.1145/42288.214372][bratley88].
+* S. Joe and F. Y. Kuo, [Remark on algorithm 659: Implementing Sobol's quasirandom sequence generator][joe03],
+*ACM Trans. Math. Soft* **29** (1), 49-57 (2003), [doi:10.1145/641876.641879][joe03].
+
+[bratley88]: https://dl.acm.org/citation.cfm?id=214372
+[joe03]: https://dl.acm.org/citation.cfm?id=641879
 
 Originally implemented in C in 2007 as
 [part of](https://github.com/stevengj/nlopt/blob/master/util/sobolseq.c) the
@@ -58,24 +62,24 @@ In practical applications, however, this point is rarely reached.
 
 To initialize a Sobol sequence `s` in `N` dimensions (`0 < N < 21201`), use
 the `SobolSeq` constructor:
-```
+```julia
 using Sobol
 s = SobolSeq(N)
 ```
 Then
-```
+```julia
 x = next!(s)
 ```
 returns the next point (a `Vector{Float64}`) in the sequence; each point
 lies in the hypercube [0,1]<sup>N</sup>.   You can also compute the next
 point in-place with
-```
+```julia
 next!(s, x)
 ```
 where `x` should be a `Vector` of length `N` of some floating-point type (e.g. `Float64`, `Float32`, or `BigFloat`).
 
 You can also use a `SobolSeq` as an iterator in Julia:
-```
+```julia
 for x in SobolSeq(N)
    ...
 end
@@ -85,7 +89,7 @@ call `break` (or similar) in the loop body at some point of your choosing.
 
 We also provide a different `SobolSeq` constructor to provide
 an `N`-dimensional Sobol sequence rescaled to an arbitrary hypercube:
-```
+```julia
 s = SobolSeq(lb, ub)
 ```
 where `lb` and `ub` are arrays (or other iterables) of length `N`, giving
@@ -95,15 +99,15 @@ the lower and upper bounds of the hypercube, respectively.   For example,
 If you know in advance the number `n` of points that you plan to
 generate, some authors suggest that better uniformity can be attained
 by first skipping the initial portion of the LDS (and in particular,
-the first power of two smaller than `n`; see Joe and Kuo, 2003).  This
+the first power of two smaller than `n`; see [Joe and Kuo, 2003][joe03]).  This
 facility is provided by:
-```
+```julia
 skip(s, n)
 ```
 
 Skipping exactly `n` elements is also possible:
 
-```
+```julia
 skip(s, n, exact=true)
 ```
 
@@ -113,7 +117,7 @@ Here is a simple example, generating 1024 points in two dimensions and
 plotting them with the [PyPlot](https://github.com/stevengj/PyPlot.jl)
 package.  Note the highly uniform, nonrandom distribution of points in
 the [0,1]×[0,1] unit square!
-```
+```julia
 using Sobol
 using PyPlot
 s = SobolSeq(2)
