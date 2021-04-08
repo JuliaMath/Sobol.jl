@@ -141,7 +141,7 @@ next!(s::ScaledSobolSeq, x::AbstractVector{<:AbstractFloat}) = next!(s.s, x, s.l
 next!(s::ScaledSobolSeq{N,T}) where {N,T} = next!(s.s, Vector{float(T)}(undef, N), s.lb, s.ub)
 Base.eltype(::Type{ScaledSobolSeq{N,T}}) where {N,T} = Vector{float(T)}
 
-Base.skip(s::ScaledSobolSeq, n) = skip(s.s, n)
+Base.skip(s::ScaledSobolSeq, n; exact = false) = skip(s.s, n; exact = exact)
 
 function Base.show(io::IO, s::ScaledSobolSeq{N,T}) where {N,T}
     lb = s.lb; ub = s.ub
