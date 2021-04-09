@@ -64,3 +64,18 @@ end
 
     @test x1 == x2
 end
+
+@testset "default skip" begin
+    # issue #21
+    s = skip(SobolSeq(4), 16)
+    p = map(_->next!(s), 1:16)
+    sort!(map(x -> sum((x .≥ 0.5) .* (2 .^ (0:3))), p)) == 0:15
+
+    for n in (7,8)
+        s = skip(SobolSeq(2), n)
+        p = [next!(s) for _ = 1:n]
+        s2 = skip(SobolSeq(2), 7, exact=true)
+        p2 = [next!(s2) for _ = 1:n]
+        @test p == p2
+    end
+end

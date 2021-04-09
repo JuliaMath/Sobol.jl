@@ -75,18 +75,22 @@ end
 next!(s::SobolSeq) = next!(s, Array{Float64,1}(undef, ndims(s)))
 
 # if we know in advance how many points (n) we want to compute, then
-# adopt the suggestion of the Joe and Kuo paper, which in turn
+# adopt a suggestion similar to the Joe and Kuo paper, which in turn
 # is taken from Acworth et al (1998), of skipping a number of
-# points equal to the largest power of 2 smaller than n
+# points one less than the largest power of 2 smaller than n+1.
 # if exactly n points are to be skipped, use the keyword exact=true.
+# (Ackworth and Joe and Kuo seem to suggest skipping exactly
+#  a power of 2, but skipping 1 less seems to produce much better
+#  results: issue #21.)
 #
-# skip!(s, n) skips m such that 2^m < n < 2^(m+1)
+# skip!(s, n) skips 2^m - 1 such that 2^m < n ≤ 2^(m+1)
 # skip!(s, n, exact=true) skips m = n
 
 function skip!(s::SobolSeq, n::Integer, x; exact=false)
-    nskip = exact ? n : 1 << floor(Int,log2(n))
+    n ≤ 0 && return s
+    nskip = exact ? n : (1 << floor(Int,log2(n+1)) - 1)
     for unused=1:nskip; next!(s,x); end
-    return nothing
+    return s
 end
 Base.skip(s::SobolSeq, n::Integer; exact=false) = skip!(s, n, Array{Float64,1}(undef, ndims(s)); exact=exact)
 
@@ -141,7 +145,7 @@ next!(s::ScaledSobolSeq, x::AbstractVector{<:AbstractFloat}) = next!(s.s, x, s.l
 next!(s::ScaledSobolSeq{N,T}) where {N,T} = next!(s.s, Vector{float(T)}(undef, N), s.lb, s.ub)
 Base.eltype(::Type{ScaledSobolSeq{N,T}}) where {N,T} = Vector{float(T)}
 
-Base.skip(s::ScaledSobolSeq, n; exact = false) = skip(s.s, n; exact = exact)
+Base.skip(s::ScaledSobolSeq, n; exact = false) = (skip(s.s, n; exact = exact); s)
 
 function Base.show(io::IO, s::ScaledSobolSeq{N,T}) where {N,T}
     lb = s.lb; ub = s.ub

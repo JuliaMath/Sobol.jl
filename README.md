@@ -98,8 +98,8 @@ the lower and upper bounds of the hypercube, respectively.   For example,
 
 If you know in advance the number `n` of points that you plan to
 generate, some authors suggest that better uniformity can be attained
-by first skipping the initial portion of the LDS (and in particular,
-the first power of two smaller than `n`; see [Joe and Kuo, 2003][joe03]).  This
+by first skipping the initial portion of the LDS. In particular,
+we skip 2ᵐ−1 for the smallest `m` where `2ᵐ ≤ n` (see [Joe and Kuo, 2003][joe03] for a similar suggestion).  This
 facility is provided by:
 ```julia
 skip(s, n)
@@ -111,6 +111,8 @@ Skipping exactly `n` elements is also possible:
 skip(s, n, exact=true)
 ```
 
+`skip` returns `s`, so you can simply do `s = skip(SobolSeq(N))` or similar.
+
 ## Example
 
 Here is a simple example, generating 1024 points in two dimensions and
@@ -121,7 +123,7 @@ the [0,1]×[0,1] unit square!
 using Sobol
 using PyPlot
 s = SobolSeq(2)
-p = hcat([next!(s) for i = 1:1024]...)'
+p = reduce(hcat, next!(s) for i = 1:1024)'
 subplot(111, aspect="equal")
 plot(p[:,1], p[:,2], "r.")
 ```
