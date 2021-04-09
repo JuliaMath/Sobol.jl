@@ -99,7 +99,7 @@ the lower and upper bounds of the hypercube, respectively.   For example,
 If you know in advance the number `n` of points that you plan to
 generate, some authors suggest that better uniformity can be attained
 by first skipping the initial portion of the LDS. In particular,
-we skip 2ᵐ−1 for the smallest `m` where `2ᵐ ≤ n` (see [Joe and Kuo, 2003][joe03] for a similar suggestion).  This
+we skip 2ᵐ−1 for the largest `m` where `2ᵐ-1 ≤ n` (see [Joe and Kuo, 2003][joe03] for a similar suggestion).  This
 facility is provided by:
 ```julia
 skip(s, n)
