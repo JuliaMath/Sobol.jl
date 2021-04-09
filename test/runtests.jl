@@ -53,16 +53,16 @@ end
 @testset "skip exactly n" begin
     # issue #22
     # want to get the nth element
-    n = 10
+    for n in (1,10)
+        s1 = SobolSeq(1)
+        x1 = last([next!(s1)[1] for _ in 1:n])
 
-    s1 = SobolSeq(1)
-    x1 = [next!(s1)[1] for i in 1:n][n]
+        s2 = skip(SobolSeq(1), n-1, exact=true)
+        x2 = next!(s2)[1]
 
-    s2 = SobolSeq(1)
-    skip(s2, n-1, exact=true)
-    x2 = next!(s2)[1]
-
-    @test x1 == x2
+        @test x1 == x2
+    end
+    @test_throws ArgumentError skip(SobolSeq(1), -1)
 end
 
 @testset "default skip" begin
