@@ -1,5 +1,5 @@
 # The Sobol module for Julia
-[![Build Status](https://travis-ci.org/stevengj/Sobol.jl.png)](https://travis-ci.org/stevengj/Sobol.jl)
+[![CI](https://github.com/JuliaMath/Sobol.jl/workflows/CI/badge.svg)](https://github.com/JuliaMath/Sobol.jl/actions?query=workflow%3ACI)
 
 This module provides a free [Julia-language](http://julialang.org/)
 [Sobol low-discrepancy-sequence
