@@ -52,38 +52,43 @@ function next!(s::SobolSeq, x::AbstractVector{<:AbstractFloat})
     if s.n == typemax(s.n)
         return rand!(x)
     end
-
-    s.n += one(s.n)
-    c = UInt32(trailing_zeros(s.n))
-    sb = s.b
-    sx = s.x
-    sm = s.m
-    for i=1:ndims(s)
-        @inbounds b = sb[i]
-        # note: ldexp on Float64(sx[i]) is exact, independent of precision of x[i]
-        if b >= c
-            @inbounds sx[i] = sx[i] ⊻ (sm[i,c+1] << (b-c))
-            @inbounds x[i] = ldexp(Float64(sx[i]), ((~b) % Int32))
-        else
-            @inbounds sx[i] = (sx[i] << (c-b)) ⊻ sm[i,c+1]
-            @inbounds sb[i] = c
-            @inbounds x[i] = ldexp(Float64(sx[i]), ((~c) % Int32))
+    
+    if iszero(s.n)
+        # Initial point
+        fill!(x, 0.0)
+    else
+        # Subsequent points
+        c = UInt32(trailing_zeros(s.n))
+        sb = s.b
+        sx = s.x
+        sm = s.m
+        for i=1:ndims(s)
+            @inbounds b = sb[i]
+            # note: ldexp on Float64(sx[i]) is exact, independent of precision of x[i]
+            if b >= c
+                @inbounds sx[i] = sx[i] ⊻ (sm[i,c+1] << (b-c))
+                @inbounds x[i] = ldexp(Float64(sx[i]), ((~b) % Int32))
+            else
+                @inbounds sx[i] = (sx[i] << (c-b)) ⊻ sm[i,c+1]
+                @inbounds sb[i] = c
+                @inbounds x[i] = ldexp(Float64(sx[i]), ((~c) % Int32))
+            end
         end
     end
+
+    s.n += one(s.n)
+
     return x
 end
 next!(s::SobolSeq) = next!(s, Array{Float64,1}(undef, ndims(s)))
 
 # if we know in advance how many points (n) we want to compute, then
-# adopt a suggestion similar to the Joe and Kuo paper, which in turn
-# is taken from Acworth et al (1998), of skipping a number of
-# points one less than the largest power of 2 smaller than n+1.
+# we can adopt a suggestion similar to Joe and Kuo (2003), which in turn
+# is taken from Acworth et al (1998), of skipping a number of initial
+# points. The number of points is the largest power of 2 smaller than n+1.
 # if exactly n points are to be skipped, use the keyword exact=true.
-# (Ackworth and Joe and Kuo seem to suggest skipping exactly
-#  a power of 2, but skipping 1 less seems to produce much better
-#  results: issue #21.)
 #
-# skip!(s, n) skips 2^m - 1 such that 2^m < n ≤ 2^(m+1)
+# skip!(s, n) skips 2^m such that 2^m ≤ n < 2^(m+1)
 # skip!(s, n, exact=true) skips m = n
 
 function skip!(s::SobolSeq, n::Integer, x; exact=false)
@@ -91,7 +96,7 @@ function skip!(s::SobolSeq, n::Integer, x; exact=false)
         n == 0 && return s
         throw(ArgumentError("$n is not non-negative"))
     end
-    nskip = exact ? n : (1 << floor(Int,log2(n+1)) - 1)
+    nskip = exact ? n : prevpow(2, n)
     for unused=1:nskip; next!(s,x); end
     return s
 end
