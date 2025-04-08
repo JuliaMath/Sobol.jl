@@ -113,11 +113,10 @@ skip(s, n, exact=true)
 Note, however, that generally it is not recommended to skip (arbitrary)
 number of points since this can ruin the digital net property and lead
 to worse convergence (as illustrated in [Owen, 2021](https://arxiv.org/abs/2008.08051) for the
-common proactice of dropping the initial point).
+common practice of dropping the initial point).
 
 `skip` returns `s`, so you can simply do `s = skip(SobolSeq(N))` or similar.
 
-Note, however, that generally it is not recommended to skip arbitrary
 
 ## Example
 
