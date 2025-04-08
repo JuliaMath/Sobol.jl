@@ -21,8 +21,8 @@ using Sobol, Test
             for line in eachline(exp_results_file)
                 values = [parse(Float64, item) for item in split(line)]
                 if length(values) > 0
-                    @test x == values
                     next!(s, x)
+                    @test x == values
                 end
             end
         end
@@ -32,7 +32,7 @@ end
 using Base.Iterators: take
 @testset "iterators" begin
     # issue #8
-    @test [x[1] for x in collect(take(Sobol.SobolSeq(1),5))] == [0.5,0.75,0.25,0.375,0.875]
+    @test [x[1] for x in collect(take(Sobol.SobolSeq(1),5))] == [0.0,0.5,0.75,0.25,0.375]
 end
 
 @testset "scaled" begin
@@ -44,8 +44,13 @@ end
     @test s isa ScaledSobolSeq{3,Int}
     @test eltype(s) == Vector{Float64}
     @test eltype(SobolSeq(Float32.(lb),Float32.(ub))) == Vector{Float32}
-    @test first(s) == [0,1.5,1]
-    @test first(SobolSeq((x for x in lb), (x for x in ub))) == [0,1.5,1]
+    @test next!(s) == [-1,0,0]
+    @test next!(s) == [0,1.5,1]
+
+    s = SobolSeq((x for x in lb), (x for x in ub))
+    @test next!(s) == [-1,0,0]
+    @test next!(s) == [0,1.5,1]
+
     @test SobolSeq(N,lb,ub) isa ScaledSobolSeq{3,Int}
     @test_throws BoundsError SobolSeq(2,lb,ub)
 end
@@ -71,10 +76,10 @@ end
     p = map(_->next!(s), 1:16)
     sort!(map(x -> sum((x .≥ 0.5) .* (2 .^ (0:3))), p)) == 0:15
 
-    for n in (7,8)
+    for n in (7,8,9)
         s = skip(SobolSeq(2), n)
         p = [next!(s) for _ = 1:n]
-        s2 = skip(SobolSeq(2), 7, exact=true)
+        s2 = skip(SobolSeq(2), n == 7 ? 4 : 8, exact=true)
         p2 = [next!(s2) for _ = 1:n]
         @test p == p2
     end

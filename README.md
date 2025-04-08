@@ -96,10 +96,9 @@ where `lb` and `ub` are arrays (or other iterables) of length `N`, giving
 the lower and upper bounds of the hypercube, respectively.   For example,
 `SobolSeq([-1,0,0],[1,3,2])` generates points in the box [-1,1]×[0,3]×[0,2].  (Although the generated points are `Float64` by default, in general the precision is determined by that of `lb` and `ub`.)
 
-If you know in advance the number `n` of points that you plan to
-generate, some authors suggest that better uniformity can be attained
-by first skipping the initial portion of the LDS. In particular,
-we skip 2ᵐ−1 for the largest `m` where `2ᵐ-1 ≤ n` (see [Joe and Kuo, 2003][joe03] for a similar suggestion).  This
+If you know in advance the number `n` of points that you plan to generate,
+some authors suggest that skipping the initial portion of the LDS.
+In particular, we skip 2ᵐ points for the largest `m` where `2ᵐ ≤ n` (see [Joe and Kuo, 2003][joe03] for a similar suggestion).  This
 facility is provided by:
 ```julia
 skip(s, n)
@@ -111,7 +110,13 @@ Skipping exactly `n` elements is also possible:
 skip(s, n, exact=true)
 ```
 
+Note, however, that generally it is not recommended to skip (arbitrary)
+number of points since this can ruin the digital net property and lead
+to worse convergence (as illustrated in [Owen, 2021](https://arxiv.org/abs/2008.08051) for the
+common practice of dropping the initial point).
+
 `skip` returns `s`, so you can simply do `s = skip(SobolSeq(N))` or similar.
+
 
 ## Example
 
@@ -123,9 +128,12 @@ the [0,1]×[0,1] unit square!
 using Sobol
 using PyPlot
 s = SobolSeq(2)
-p = reduce(hcat, next!(s) for i = 1:1024)'
+p = Matrix{Float64}(undef, 2, 1024)
+for x in eachcol(p)
+   next!(s, x)
+end
 subplot(111, aspect="equal")
-plot(p[:,1], p[:,2], "r.")
+plot(p[1, :], p[2, :], "r.")
 ```
 ![plot of 1024 points of a 2d Sobol sequence](sobol1024.png "1024 points of a 2d Sobol sequence")
 
