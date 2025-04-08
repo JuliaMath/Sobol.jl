@@ -111,7 +111,7 @@ Skipping exactly `n` elements is also possible:
 skip(s, n, exact=true)
 ```
 
-`skip` returns `s`, so you can simply do `s = skip(SobolSeq(N))` or similar.
+`skip` mutates and returns `s`, so you can simply do `s = skip(SobolSeq(lb, ub), n)` or similar.
 
 ## Example
 
