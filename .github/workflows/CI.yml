@@ -25,6 +25,7 @@ jobs:
         version:
           - 'lts'
           - '1'   # Latest Release
+          - 'min' # Minimum supported release in Project.toml
         os:
           - ubuntu-latest
           - macos-13 # Intel
