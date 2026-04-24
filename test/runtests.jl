@@ -16,7 +16,7 @@ using Sobol, Test
     for dim in dimensions
         println("Testing dimension $(dim)")
         open(joinpath(dirname(@__FILE__), "results", "exp_results_$(dim)")) do exp_results_file
-            s = SobolSeq(dim)
+            s = @inferred SobolSeq(dim)
             x = zeros(dim)
             for line in eachline(exp_results_file)
                 values = [parse(Float64, item) for item in split(line)]
@@ -40,13 +40,14 @@ end
     lb = [-1,0,0]
     ub = [1,3,2]
     N = length(lb)
-    s = SobolSeq(lb,ub)
-    @test s isa ScaledSobolSeq{3,Int}
+    s = @inferred SobolSeq(lb,ub)
+    @test s isa ScaledSobolSeq{Int} && ndims(s) == 3
     @test eltype(s) == Vector{Float64}
     @test eltype(SobolSeq(Float32.(lb),Float32.(ub))) == Vector{Float32}
     @test first(s) == [0,1.5,1]
     @test first(SobolSeq((x for x in lb), (x for x in ub))) == [0,1.5,1]
-    @test SobolSeq(N,lb,ub) isa ScaledSobolSeq{3,Int}
+    s = @inferred SobolSeq(N,lb,ub)
+    @test s isa ScaledSobolSeq{Int} && ndims(s) == 3
     @test_throws BoundsError SobolSeq(2,lb,ub)
 end
 
